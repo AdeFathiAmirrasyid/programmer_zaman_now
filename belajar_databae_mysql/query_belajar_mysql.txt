@@ -1,0 +1,206 @@
+login ke mysql => mysql -uroot -p
+
+Query menampilkan semua database
+	=> show databases
+
+Query untuk menggunakan database 
+	=> use db_nama_database
+
+Query untuk melihat table 
+	=> show tables
+
+Query untuk menampilkan engine
+	=> show engines;
+
+Query untuk membuat table baru
+	=> CREATE TABLE barang (
+	    -> id INT,
+	    -> nama VARCHAR(100),
+	    -> harga INT,
+	    -> jumlah INT
+	    -> )ENGINE = InnoDB;
+
+Query untuk menampilkan dan create query 
+	=> show create table barang;
+
+=== ALTER TABLE ===
+Query untuk menambahkan column baru
+	=> alter table barang
+	    -> add column description text;
+
+Query untuk menghapus column 
+	=> alter table nama_table drop column nama_column;
+
+Query untuk menampilkan struktur table
+	=> desc barang
+
+Query untuk mengupdate data table and default table
+	=> alter table nama_table modify nama varchar(200) after jumlah;
+	=> alter table barang modify nama varchar(200) first;
+	=> alter table barang modify nama varchar(200) not null;
+	=> alter table barang modify id INT not null;
+	=> alter table barang modify jumlah INT not null default 0;
+	=> alter table barang add waktu_dibuat timestamp not null default current_timestamp;
+
+=== INSERT INTO ===
+Query untuk mengisi value di dalam table 
+	=> insert into products(id, name, price, quantity)
+	    -> values ('P0001','Mie Ayam Pagongan', 15000, 100),
+			-> ('P0001','Mie Ayam Pagongan', 15000, 100),
+			-> ('P0001','Mie Ayam Pagongan', 15000, 100),
+			-> ('P0001','Mie Ayam Pagongan', 15000, 100),
+			-> ('P0001','Mie Ayam Pagongan', 15000, 100),
+			-> ('P0001','Mie Ayam Pagongan', 15000, 100),
+			-> ('P0001','Mie Ayam Pagongan', 15000, 100),
+			-> ('P0001','Mie Ayam Pagongan', 15000, 100),
+			-> ('P0001','Mie Ayam Pagongan', 15000, 100);
+
+=== SELECT * FROM ===
+Query untuk menampilkan semua data value table
+	=> select * from products;
+	
+Query untuk menampilkan beberapa table saja
+	=> select name, id from products;
+
+Query untuk menambahkan primary key
+	=> alter table products add primary key (id);
+
+Query untuk mendapatkan quantity 100
+	=> select * from products where quantity =100;
+
+Query untuk menambahkan category
+	=> alter table products add column category enum('Makanan', 'Minuman', 'Lain-Lain') after name;
+
+Query untuk mengupdate data table
+	=> update products set category = 'Makanan' where id = 'P0001';
+	=> update products set category = 'Makanan', description = 'Mie Ayam Original + Ceker' where id = 'P0003';
+	=> update products set price = price + 7000 where id = 'P0006';
+
+Query untuk menghapus data table
+	=>  delete from products where id = 'P0009';
+
+=== WHERE OPERATOR ===
+Query untuk menampilkan quantity > 100 and price > 20000
+	=> select * from products where quantity > 100 and price > 20000;
+
+Query untuk menampilkan yang mengandung kata "mie"/"bakso" (LIKE)
+	=> select * from products where name like '%mie%';
+	=> select * from products where name like '%bakso%';
+
+Query untuk menampilkan data yang null
+	=> select * from products where description is null;
+
+Query untuk menampilkan data yang tidak boleh null
+	=> select * from products where description is not null;
+
+Query untuk menampilkan data table lebih simple dari operator and (dari 10000 sampai 20000)
+	=> select * from products where price between 10000 and 20000;
+
+Query untuk menampilkan data table lebih simple dari operator and (selain lebih dari 10000 and 20000)
+	=>select * from products where price not between 10000 and 20000;
+
+Query untuk mencari menggunakan IN operator
+	=> select * from products where category in ('makanan','minuman');
+	=> select * from products where category not in ('makanan','minuman');
+
+======================= ORDER BY CLAUSE ==========================
+
+Query untuk mengurutkan berdasarkan ASC atau DESC
+	=> select * from products order by category;
+	=> select id,category,price,name from products order by category asc, price desc;
+	=> select id,category,name from products order by category;
+
+======================= LIMIT CLAUSE ==========================
+Query untuk Membatasi Hasil Query 
+	=> select * from products order by id limit 5;
+
+Query untuk Meng skip 5 data pertama dan menampilkan 5 data selanjutnya
+	=>  select * from products order by id limit 5, 5;
+
+Query untuk menghilangkan data duplikat
+	=>  select distinct  category from products;
+
+======================= Numeric Function ==========================
+Query aritmatic operator
+	=> select 10 * 10 as Hasil;
+	=> select 10, 10, 10 * 10 as Hasil;
+	=> select id, name,price, price div 1000 as 'price in k' from products;
+
+Query matematical function
+	=> select id, cos(price), sin(price), tan(price) from products;
+
+======================= Auto Increment ==========================
+Query melihat id terakhir 
+	=> select last_insert_id();
+
+======================= String Function ==========================
+Query string function
+	=> select id,  lower(name) as 'Name Lower', length(name) as 'Name Length' from products;
+	=> select id,  lower(name) as 'Name Lower',upper(name) as 'Name Upper', length(name) as 'Name Length' from products;
+
+======================= Date and Time Function ==========================
+Query date and time
+	=> select id, created_at,
+	    -> extract(year from created_at) as year,
+	    -> extract(month from created_at) as month from products;
+	=> select id, created_at, YEAR(created_at), MONTH(created_at) from products;
+
+======================= Flow Control Function ==========================
+Query untuk menggunakan control flow CASE
+	=> select id,
+	    -> category,
+	    -> case category
+	    -> when 'Makanan' then 'Enak'
+	    -> when 'Minuman' then 'Segar'
+	    -> else 'Apa Itu?'
+	    -> end as 'Category'
+	    -> from products;
+if else 
+	=> select id, price, IF(price <= 15000, 'Murah', 'Mahal') from products;
+	=> select id, price, IF(price <= 15000, 'Murah', IF(price <= 20000, 'Mahal', 'Mahal Banget')) as 'Mahal ?' from products;
+
+if null
+	=> select id, name, IFNULL(description,'Kosong') From products;
+
+======================= Aggregate Function ==========================
+Query Aggregate Function
+	=> select count(id) as 'Total Product' From products;
+	=> select MAX(price) as 'Product Termahal' From products; 
+	=> select MIN(price) as 'Product Termurah' From products;
+	=> select AVG(price) as 'Rata-Rata Harga' From products;
+	=> select Sum(quantity) as 'Total Stock' From products;
+
+======================= Groupig ==========================
+
+Query grouping
+	=> select count(id) as 'Total Product', category From products group by category;
+	=> select MAX(price) as 'Product Termahal',category From products group by category;
+	=> select MIN(price) as 'Product Termurah', category From products group by category;
+	=> select Sum(quantity) as 'Total Stock', category From products group by category;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
