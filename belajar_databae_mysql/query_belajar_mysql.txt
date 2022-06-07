@@ -178,6 +178,270 @@ Query grouping
 	=> select MIN(price) as 'Product Termurah', category From products group by category;
 	=> select Sum(quantity) as 'Total Stock', category From products group by category;
 
+Query Having Clause
+	=>  select count(id) as 'Total', category From products group by category having total > 3;
+
+table customers => create table customers(
+    -> id int not null auto_increment,
+    -> email varchar(100) not null,
+    -> first_name varchar(100) not null,
+    -> last_name varchar(100),
+    -> primary key (id),
+    -> unique key email_unique (email)) engine = InnoDB;
+
+Query untuk menghapus unique
+	=>  alter table customers drop constraint email_unique;
+
+Query untuk menambahkan unique
+	=> alter table customers add constraint email_unique unique (email);
+
+insert unique constraint
+	=> insert into customers(email,first_name,last_name)
+	    -> values('diahinsani@gmail.com','diah','insani');
+
+Query untuk menambahkan check constraint
+	=> alter table products add constraint price_check check (price >= 1000);
+
+Query full text search menambahkan
+	=> alter table products add fulltext product_fulltext (name,description);
+
+Query pencarian menggunakan fulltext
+	=> select * from products where match(name,description) against('ayam' in natural language mode);
+	=> select * from products where match(name,description) against('+ayam -bakso' in boolean mode);
+	=> select * from products where match(name,description) against('bakso' with query expansion);
+
+
+======================= Table Relationship ==========================
+
+
+create => create table wishlist(
+	    -> id int not null auto_increment,
+	    -> id_products varchar(10) not null,
+	    -> description text,
+	    -> primary key (id),
+	    -> constraint fk_wishlist_product foreign key(id_products) references products(id)) engine = InnoDb;
+
+Query hapus foreign key
+	=> 	 alter table wishlist drop constraint fk_wishlist_product;
+
+Query Menambahkan foreign key
+	=> alter table wishlist add constraint fk_wishlist_product foreign key(id_products) references products(id);
+
+======================= Join ==========================
+Query join table
+	=> select * from wishlist join products on (wishlist.id_products = products.id);
+	=>  select w.id, p.id, p.name, w.description from wishlist as w join products as p on (w.id_products = p.id);
+	=>  select w.id as id_wishlist, p.id as id_product, p.name as product_name, w.description as wishlist_description from wishlist as w join products as p on (w.id_products = p.id);
+
+
+Query untuk melakukan join multiple table
+	=> select customers.email, products.id, products.name, wishlist.description from wishlist
+	    -> join products on (products.id = wishlist.id_products)
+	    -> join customers on (customers.id = wishlist.id_customer);
+
+======================= One To One Relationship ==========================
+Query create wallet
+	=> create table wallet(
+    -> id int not null auto_increment,
+    -> id_customer int not null,
+    -> balance int not null default 0,
+    -> primary key (id),
+    -> unique key id_customer_unique (id_customer),
+    -> foreign key fk_wallet_customer(id_customer) references customers(id)
+    -> )engine = innodb;
+
+Query menampilkan data join one to one
+	=> select customers.email, wallet.balance from wallet join customers on (wallet.id_customer = customers.id);
+
+
+======================= One To Many Relationship ==========================
+
+Query create category
+	=> create table categories(
+	    -> id varchar(10) not null,
+	    -> name varchar(100) not null,
+	    -> primary key(id)
+	    -> ) engine = innodb;
+alter table
+	=> alter table products add column id_category varchar(10);
+	=> alter table products add constraint fk_products_categories
+	    -> foreign key(id_category) references categories(id);
+
+insert data
+	=>  insert into categories(id, name) values ('C0001', 'Makanan'),
+	    -> ('C0002','Minuman'),
+	    -> ('C0003','Lain-Lain');
+
+update data
+	=> update products set id_category = 'C0001' where id in ('P0001', 'P0003', 'P0010','P0007');
+	=> update products set id_category = 'C0002' where id in ('P0002', 'P0006', 'P0009');
+	=> update products set id_category = 'C0003' where id in ('P0011', 'P0008', 'P0005','P0004');
+
+Query menampilkan data
+	=> select products.id, products.name, categories.name
+	    -> from products
+	    -> join categories on (categories.id = products.id_category);
+
+
+
+======================= Ma To Many Relationship ==========================
+
+Query create table order
+	=> CREATE TABLE orders(
+	    id INT NOT NULL AUTO_INCREMENT,
+	    total INT NOT NULL,
+	    order_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	    PRIMARY KEY (id)
+	);
+
+Query create table orders_detail
+	=> CREATE TABLE orders_detail(
+		id_product VARCHAR(10) NOT NULL,
+		id_order INT NOT NULL,
+	    price INT NOT NULL,
+	    quantity INT NOT NUll,
+	    PRIMARY KEY (id_product, id_order)
+	);
+
+Query add constraint
+	=> ALTER TABLE orders_detail ADD CONSTRAINT fk_orders_detail_product FOREIGN KEY (id_product) REFERENCES products(id);
+	=> ALTER TABLE orders_detail ADD CONSTRAINT fk_orders_detail_orders FOREIGN KEY (id_order) REFERENCES orders(id);
+
+insert data
+	=> insert into orders(total) values (50000);
+	=> insert into orders_detail(id_product, id_order, price, quantity) values ('P0001', 2, 25000, 1),
+	    -> ('P0003', 3, 25000, 1);
+	=> insert into orders_detail(id_product, id_order, price, quantity) values ('P0003', 2, 25000, 1),
+	    -> ('P0004', 3, 25000, 1);
+	=> insert into orders_detail(id_product, id_order, price, quantity) values ('P0001', 1, 25000, 1),
+	    -> ('P0002', 1, 25000, 1);
+
+Query melihat data order, detail dan productnya
+	=> select * from orders
+	    -> join orders_detail on (orders_detail.id_order = orders.id)
+	    -> join products on (products.id = orders_detail.id_product);
+
+	
+	=> select orders.id, products.id, products.name, orders_detail.quantity, orders_detail.price from orders
+	    -> join orders_detail on (orders_detail.id_order = orders.id)
+	    -> join products on (products.id = orders_detail.id_product);
+
+======================= Join ==========================
+
+Query inner join
+	=> select * from categories inner join products on (products.id_category = categories.id);
+
+Query left join
+	=> select * from categories left join products on (products.id_category = categories.id);
+
+Query right join
+	=>  select * from categories right join products on (products.id_category = categories.id);
+
+======================= Subquery ==========================
+
+
+Query mencari harga rata-rata/AVG
+	=> select * from products where price > (select avg(price) from products);
+
+Query avg yang ada categorynya
+	=>  select max(cp.price) from (select price from categories join products on (products.id_category = categories.id)) as cp;
+
+======================= Set Operator ==========================
+
+Query create guestbooks
+	=> create table guestbooks(
+	    -> id int not null auto_increment,
+	    -> email varchar(100),
+	    -> title varchar(200),
+	    -> content text,
+	    -> primary key (id)
+	    -> )engine = InnoDB;
+
+Query insert data	
+	=> insert into  guestbooks(email, title, content)
+	    -> values ('guest@gmail.com','Hello','Hello'),
+	    -> ('guest2@gmail.com','Hello','Hello'),
+	    -> ('guest3@gmail.com','Hello','Hello'),
+	    -> ('diahinsani@gmail.com','Hello','Hello'),
+	    -> ('diahinsani@gmail.com','Hello','Hello'),
+	    -> ('diahinsani@gmail.com','Hello','Hello');
+
+Query tampil data distinct
+	=> select distinct email from customers;
+
+Query Union
+	=>  select distinct email from customers
+	    -> union
+	    -> select distinct email from guestbooks;	
+
+Query Union All
+	=>  select distinct email from customers
+	    -> union all
+	    -> select distinct email from guestbooks;
+
+	=> select emails.email, count(emails.email) from (select email from customers union all
+	    -> select email from guestbooks) as emails group by emails.email;
+
+Query intersect menggunakan subquery
+	=>  select distinct email from customers
+	    -> where email in (select distinct email from guestbooks);
+
+Query intersect menggunakan inner join
+	=> select customers.email from customers
+	    -> inner join guestbooks on (guestbooks.email = customers.email);
+
+	=> select distinct customers.email from customers
+	    -> inner join guestbooks on (guestbooks.email = customers.email);
+
+Query minus menggunakan left join dan where
+	=> select distinct customers.email, guestbooks.email from customers
+	    -> left join guestbooks on (customers.email = guestbooks.email)
+	    -> where guestbooks.email is null;
+
+
+======================= Transaction ==========================
+
+Query memulai start transaction
+	=> start transaction;
+	=> insert into guestbooks(email, title, content)
+	    -> values ('contoh@gmail.com','Contoh','Contoh'),
+	    -> ('contoh2@gmail.com','Contoh','Contoh'),
+	    -> ('contoh3@gmail.com','Contoh','Contoh');
+	=>  commit;
+
+Query untuk membatalkan start transaction 
+	=> rollback
+
+======================= Locking ==========================
+
+user 1 ketika mengedit data id = 9 
+dan user 2 mengedit data id = 9 maka user 2 akan menunggu user 1 untuk melakukan commit;
+
+
+======================= User Management ==========================
+
+link hak access
+	=> https://dev.mysql.com/doc/refman/8.0/en/grant.html
+
+
+Query hak akses
+	=> create user 'diah'@'localhost';
+	=> create user 'fathi'@'ip_address';
+
+	=> drop user 'diah'@'localhost';
+	=> drop user 'fathi'@'ip_address';
+
+	Grant memilih hak yang bisa di akses
+	=> grant select on belajar_mysql.* to 'daih'@'localhost';
+	=> grant select, insert, update, delete on belajar_mysql.* to 'daih'@'localhost';
+
+	=> show grant for 'diah'@'localhost';
+
+	=> set password for 'eko'@'localhost' = 'rahasia';
+
+	=> revoke select, insert, update, delete on belajar_mysql.* from 'daih'@'localhost';
+
+
 
 
 
