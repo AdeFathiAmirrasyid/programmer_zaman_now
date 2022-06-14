@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>String Template</title>
+  </head>
+  <body>
+    <script>
+      const name = "Fathie_Insanie";
+      const template = `Name : ${name}`;
+      console.info(template);
+
+      const nilai = 30;
+      const template2 = `Name : ${name}, Lulus : ${nilai > 70}`;
+      console.info(template2);
+
+      const multiline = `Nama Fathie Insanie
+      Pengusaha Sukses,
+      Fullstack Developer,
+      Devops,
+      UI/UX Desainer`;
+
+      document.writeln("<pre>");
+      document.writeln(multiline);
+      document.writeln("</pre>");
+    </script>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>With Statement</title>
+  </head>
+  <body>
+    <script>
+      const person = {
+        firstName: "Diah",
+        middleName: "Fathie",
+        lastName: "Insanie",
+      };
+
+      console.info(person.firstName);
+      console.info(person.middleName);
+      console.info(person.lastName);
+      console.info("================");
+
+      const firstName = "Alisia";
+      const lastName = "Setiani";
+
+      with (person) {
+        console.info(firstName);
+        console.info(middleName);
+        console.info(lastName);
+      }
+      console.info("================");
+
+      console.info(firstName);
+      console.info(person.firstName);
+    </script>
+  </body>
+</html>
